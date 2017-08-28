@@ -31,12 +31,17 @@ import org.uberfire.ext.security.management.api.UserManagerSettings;
 import org.uberfire.ext.security.management.api.exception.NoImplementationAvailableException;
 import org.uberfire.ext.security.management.api.exception.SecurityManagementException;
 import org.uberfire.ext.security.management.api.service.UserManagerService;
+import org.uberfire.ext.security.management.util.SecurityManagementUtils;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 /**
  * <p>The UberFire service implementation for UsersManager API.</p>
  */
 @Service
 @ApplicationScoped
+@Path("user")
 public class UserManagerServiceImpl implements UserManagerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserManagerServiceImpl.class);
@@ -128,4 +133,51 @@ public class UserManagerServiceImpl implements UserManagerService {
         final UserManager serviceImpl = getService();
         return serviceImpl.getSettings();
     }
+
+    @Path("password/{username}")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void changePasswordByRest(@PathParam("username") String username,
+                                     String password) {
+        changePassword(username,
+                       password);
+    }
+
+    @Path("roles/{username}")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void assignRolesByRest(@PathParam("username") String username,
+                                  Collection<String> roles) {
+        assignRoles(username,
+                    roles);
+    }
+
+    @Path("groups/{username}")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void assignGroupsByRest(@PathParam("username") String username,
+                                   Collection<String> groups) {
+        assignGroups(username,
+                     groups);
+    }
+
+    @Path("{username}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public User getByRest(@PathParam("username") String username) {
+        return get(username);
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void createByRest(String username) {
+        create(SecurityManagementUtils.createUser(username));
+    }
+
+    @Path("{username}")
+    @DELETE
+    public void deleteByRest(@PathParam("username") String username) {
+        delete(username);
+    }
+
 }
